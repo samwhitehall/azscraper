@@ -3,9 +3,10 @@ from Queue import Queue
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchAttributeException
 
-import threading
 import model
+import random
 import settings
+import threading
 
 # login to Amazon
 driver = webdriver.Firefox()
@@ -98,3 +99,7 @@ for worker in workers:
     worker.join() # block until all threads finished
 
 driver.close()
+
+print 'Your randomly selected recommended item is:'
+print
+print random.choice(items)
