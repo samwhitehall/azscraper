@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchAttributeException
 
+import model
 import settings
 
 # login to Amazon
@@ -23,6 +24,7 @@ signin_button.click()
 driver.get('http://www.amazon.co.uk/gp/yourstore/recs/')
 
 url_queue = []
+items = []
 
 try:
     for _ in range(settings.NUM_PAGES):
@@ -38,6 +40,10 @@ try:
         # navigate to next page
         next_page = driver.find_element_by_id('ysMoreResults')
         next_page.click()
+
+    for url in url_queue:
+        item = model.AmazonItem(url, driver)
+        items.append(item)
 
 except NoSuchAttributeException:
     pass
