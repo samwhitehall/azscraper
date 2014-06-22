@@ -1,9 +1,9 @@
 class AmazonItem:
     def __init__(self, url, driver):
         self.url = url
-        if driver.current_url != url:
-            driver.get(url)
+
         self.driver = driver
+        self.driver.get(url)
 
         self.name = self.get_name()
         self.rating = self.get_rating()
