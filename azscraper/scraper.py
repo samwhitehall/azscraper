@@ -1,3 +1,5 @@
+from Queue import Queue
+
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchAttributeException
 
@@ -20,11 +22,11 @@ pass_box.send_keys(settings.PASSWORD)
 signin_button = driver.find_element_by_id('signInSubmit-input')
 signin_button.click()
 
-# navigate pagination for recommendations page
-driver.get('http://www.amazon.co.uk/gp/yourstore/recs/')
+# scrape together list of URLs from listing page, to scrape later
+url_queue = Queue()
+items = Queue()
 
-url_queue = []
-items = []
+driver.get('http://www.amazon.co.uk/gp/yourstore/recs/')
 
 try:
     for _ in range(settings.NUM_PAGES):
@@ -35,15 +37,16 @@ try:
         # add recommened item URLs to a queue
         for link in links:
             url = link.get_attribute('href')
-            url_queue.append(url)
+            url_queue.put(url)
 
         # navigate to next page
         next_page = driver.find_element_by_id('ysMoreResults')
         next_page.click()
-
-    for url in url_queue:
-        item = model.AmazonItem(url, driver)
-        items.append(item)
-
 except NoSuchAttributeException:
     pass
+
+# go through each URL in the list; load each page and scrape for further info 
+while not url_queue.empty():
+    url = url_queue.get()
+    item = model.AmazonItem(url, driver)
+    items.put(item)

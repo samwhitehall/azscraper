@@ -29,6 +29,6 @@ class AmazonItem:
         return price
 
     def get_top_review(self):
-        top = driver.find_elements_by_class_name('reviews')[0]
-        text = top[0].find_element_by_class_name('MHRHead').text
+        top = self.driver.find_elements_by_class_name('reviews')
+        text = top[0].find_element_by_class_name('reviewText').text
         return text
