@@ -10,6 +10,7 @@ import settings
 # login to Amazon
 driver = webdriver.Firefox()
 driver.get('http://www.amazon.co.uk')
+print '>> amazon.co.uk loaded'
 
 login_button = driver.find_element_by_partial_link_text('Sign in')
 login_button.click()
@@ -23,6 +24,9 @@ pass_box.send_keys(settings.PASSWORD)
 signin_button = driver.find_element_by_id('signInSubmit-input')
 signin_button.click()
 
+print '>> successfully signed in as %s' % settings.EMAIL
+
+
 # scrape together list of URLs from listing page, to scrape later
 url_queue = Queue()
 items = []
@@ -30,7 +34,7 @@ items = []
 driver.get('http://www.amazon.co.uk/gp/yourstore/recs/')
 
 try:
-    for _ in range(settings.NUM_PAGES):
+    for i in range(settings.NUM_PAGES):
         # find links; filter to those that link to items for sale
         is_item_link = lambda a: a.get_attribute('id').startswith('ysProdLink')
         links = filter(is_item_link, driver.find_elements_by_css_selector('.ys a'))
@@ -39,6 +43,8 @@ try:
         for link in links:
             url = link.get_attribute('href')
             url_queue.put(url)
+
+        print '>> urls from page collected (%d/%d)' % (i+1, settings.NUM_PAGES)
 
         # navigate to next page
         next_page = driver.find_element_by_id('ysMoreResults')
@@ -61,12 +67,11 @@ class ScraperWorker(threading.Thread):
         self.driver = webdriver.Firefox()
         self.thread_id = thread_id
 
-        print 'Scraper worker initialised %d' % thread_id
 
     def run(self):
         while True:
             url = self.queue.get() # repeatedly sample queue
-            print '>> thread %d doing %s' % (self.thread_id, url)
+            print '>> thread %d processing %s' % (self.thread_id, url)
 
             if url == 'END': # end of queue token
                 print '<< thread %d terminated' % self.thread_id
@@ -86,6 +91,8 @@ for i in range(settings.NUM_THREADS):
     worker.setDaemon(True)
     worker.start()
     workers.append(worker)
+
+    print '>> scraper worker initialised (%d/%d)' % (i, settings.NUM_THREADS)
 
 for worker in workers:
     worker.join() # block until all threads finished
