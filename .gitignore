@@ -3,4 +3,4 @@
 *.egg-info
 
 # sensitive information
-azscraper/login_details.py
+azscraper/settings.py

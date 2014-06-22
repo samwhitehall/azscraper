@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchAttributeException
 
-import login_details
+import settings
 
 # login to Amazon
 driver = webdriver.Firefox()
@@ -11,10 +11,10 @@ login_button = driver.find_element_by_partial_link_text('Sign in')
 login_button.click()
 
 email_box = driver.find_element_by_id('ap_email')
-email_box.send_keys(login_details.EMAIL)
+email_box.send_keys(settings.EMAIL)
 
 pass_box = driver.find_element_by_id('ap_password')
-pass_box.send_keys(login_details.PASSWORD)
+pass_box.send_keys(settings.PASSWORD)
 
 signin_button = driver.find_element_by_id('signInSubmit-input')
 signin_button.click()
