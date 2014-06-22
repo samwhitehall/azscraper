@@ -22,11 +22,22 @@ signin_button.click()
 # navigate pagination for recommendations page
 driver.get('http://www.amazon.co.uk/gp/yourstore/recs/')
 
+url_queue = []
+
 try:
-    while True:
+    for _ in range(settings.NUM_PAGES):
+        # find links; filter to those that link to items for sale
+        is_item_link = lambda a: a.get_attribute('id').startswith('ysProdLink')
+        links = filter(is_item_link, driver.find_elements_by_css_selector('.ys a'))
+
+        # add recommened item URLs to a queue
+        for link in links:
+            url = link.get_attribute('href')
+            url_queue.append(url)
+
+        # navigate to next page
         next_page = driver.find_element_by_id('ysMoreResults')
         next_page.click()
 
-        # do something interesting
 except NoSuchAttributeException:
     pass
