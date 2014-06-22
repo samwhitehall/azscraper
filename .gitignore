@@ -1,3 +1,6 @@
 *.pyc
 *.un~
 *.egg-info
+
+# sensitive information
+azscraper/login_details.py
