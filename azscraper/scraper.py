@@ -43,6 +43,8 @@ try:
         # navigate to next page
         next_page = driver.find_element_by_id('ysMoreResults')
         next_page.click()
+
+    # put end token in when complete
     url_queue.put('END')
 
 except NoSuchAttributeException:
@@ -64,6 +66,7 @@ class ScraperWorker(threading.Thread):
     def run(self):
         while True:
             url = self.queue.get() # repeatedly sample queue
+            print '>> thread %d doing %s' % (self.thread_id, url)
 
             if url == 'END': # end of queue token
                 print '<< thread %d terminated' % self.thread_id
@@ -74,12 +77,11 @@ class ScraperWorker(threading.Thread):
             # convert to item (scrape URL page using this thread's browser)
             item = model.AmazonItem(url, self.driver)
             items.append(item)
-            print '>> thread %d did %s' % (self.thread_id, url)
             self.queue.task_done()
 
 # create and start worker threads
 workers = []
-for i in range(3):
+for i in range(settings.NUM_THREADS):
     worker = ScraperWorker(i, url_queue)
     worker.setDaemon(True)
     worker.start()
@@ -87,3 +89,5 @@ for i in range(3):
 
 for worker in workers:
     worker.join() # block until all threads finished
+
+driver.close()
