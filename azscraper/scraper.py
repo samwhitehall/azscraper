@@ -3,15 +3,20 @@ from Queue import Queue
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchAttributeException
 
+import logging
 import model
 import random
 import settings
+import sys
 import threading
+
+# setup logging
+log = logging.getLogger('azscraper')
 
 # login to Amazon
 driver = webdriver.Firefox()
 driver.get('http://www.amazon.co.uk')
-print '>> amazon.co.uk loaded'
+log.info('amazon.co.uk loaded')
 
 login_button = driver.find_element_by_partial_link_text('Sign in')
 login_button.click()
@@ -25,7 +30,7 @@ pass_box.send_keys(settings.PASSWORD)
 signin_button = driver.find_element_by_id('signInSubmit-input')
 signin_button.click()
 
-print '>> successfully signed in as %s' % settings.EMAIL
+log.info('successfully signed in as %s' % settings.EMAIL)
 
 
 # scrape together list of URLs from listing page, to scrape later
@@ -45,7 +50,7 @@ try:
             url = link.get_attribute('href')
             url_queue.put(url)
 
-        print '>> urls from page collected (%d/%d)' % (i+1, settings.NUM_PAGES)
+        log.info('urls from page collected (%d/%d)' % (i+1, settings.NUM_PAGES))
 
         # navigate to next page
         next_page = driver.find_element_by_id('ysMoreResults')
@@ -72,10 +77,10 @@ class ScraperWorker(threading.Thread):
     def run(self):
         while True:
             url = self.queue.get() # repeatedly sample queue
-            print '>> thread %d processing %s' % (self.thread_id, url)
+            log.info('>> thread %d processing %s' % (self.thread_id, url))
 
             if url == 'END': # end of queue token
-                print '<< thread %d terminated' % self.thread_id
+                log.info('<< thread %d terminated' % self.thread_id)
                 self.queue.put('END') # put the token back, for other threads
                 self.driver.close()
                 break
@@ -93,7 +98,7 @@ for i in range(settings.NUM_THREADS):
     worker.start()
     workers.append(worker)
 
-    print '>> scraper worker initialised (%d/%d)' % (i, settings.NUM_THREADS)
+    log.info('>> scraper worker initialised (%d/%d)' % (i, settings.NUM_THREADS))
 
 for worker in workers:
     worker.join() # block until all threads finished
