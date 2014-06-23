@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchAttributeException
 
 import logging
+import logging.config
 import model
 import random
 import settings
@@ -11,12 +12,13 @@ import sys
 import threading
 
 # setup logging
-log = logging.getLogger('azscraper')
+#log = logging.getLogger('scraper')
+logging.config.fileConfig('logging.conf')
 
 # login to Amazon
 driver = webdriver.Firefox()
 driver.get('http://www.amazon.co.uk')
-log.info('amazon.co.uk loaded')
+logging.info('amazon.co.uk loaded')
 
 login_button = driver.find_element_by_partial_link_text('Sign in')
 login_button.click()
@@ -30,7 +32,7 @@ pass_box.send_keys(settings.PASSWORD)
 signin_button = driver.find_element_by_id('signInSubmit-input')
 signin_button.click()
 
-log.info('successfully signed in as %s' % settings.EMAIL)
+logging.info('successfully signed in as %s' % settings.EMAIL)
 
 
 # scrape together list of URLs from listing page, to scrape later
