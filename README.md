@@ -17,3 +17,6 @@ The tool needs a file called `settings.py` in the `azscrape` directory with the 
 It works by scraping `NUM_PAGES` many pages, storing these URLs in a queue, and letting `NUM_THREADS` many 
 worker threads (each with a browser) scrape these URLs for details. A random item is selected and printed
 to `stdout`.
+
+It can be run by installing with `python setup.py install` or just executing `python azscraper/scraper.py`.
+There is a single requirement package (`selenium`).
